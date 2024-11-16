@@ -1,0 +1,21 @@
+services:
+  production-grade-app: #container responsible for running the app
+    build: 
+      context: . #look in the current directory
+      dockerfile: Dockerfile.dev 
+    ports:
+      - "3000:3000"
+    volumes:
+      - /app/node_modules
+      - .:/app
+      
+  tests: #container responsible for running the testcases of the app
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - .:/app
+    command: ["npm", "run", "test"]
+
+    
