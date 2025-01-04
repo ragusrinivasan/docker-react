@@ -9,13 +9,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-      - run: docker build -t cygnetops/react-test -f Dockerfile.dev .
-      - run: docker run -e CI=true cygnetops/react-test npm test
-
+      
+      # Docker Login using --password-stdin
+      - name: Docker Login
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      
+      # Build Docker Image
+      - name: Build Docker Image
+        run: docker build -t cygnetops/react-test -f Dockerfile.dev .
+      
+      # Run Tests
+      - name: Run Tests
+        run: docker run -e CI=true cygnetops/react-test npm test
+      
+      # Generate Deployment Package
       - name: Generate deployment package
         run: zip -r deploy.zip . -x '*.git*'
 
+      # Deploy to Elastic Beanstalk
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v18
         with:
